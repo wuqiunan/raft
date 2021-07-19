@@ -222,7 +222,7 @@ static int ServerInit(struct Server *s,
     for (int i = 0; i < 3; i++){
         char addr[64];
         unsigned server_id = i+1;
-        sprintf(addr, "%s:900%d", address, server_id);
+        sprintf(addr, "%s:900%d", ip_list[i], server_id);
         rv = raft_configuration_add(&configuration, server_id, addr,
                                     RAFT_VOTER);
         if (rv != 0) {
