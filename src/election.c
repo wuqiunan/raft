@@ -121,7 +121,6 @@ int electionStart(struct raft *r)
     /* This function should not be invoked if we are not a voting server, hence
      * voting_index must be lower than the number of servers in the
      * configuration (meaning that we are a voting server). */
-    printf("server number: %d\n", r->configuration.n);
     assert(voting_index < r->configuration.n);
 
     /* Coherence check that configurationVoterCount and configurationIndexOfVoter

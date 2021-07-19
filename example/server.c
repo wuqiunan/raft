@@ -219,7 +219,7 @@ static int ServerInit(struct Server *s,
 
     /* Bootstrap the initial configuration if needed. */
     raft_configuration_init(&configuration);
-    for (int i = 0; i < 3; i++){
+    for (int i = 0; i < strlen(ip_list); i++){
         char addr[64];
         unsigned server_id = i+1;
         sprintf(addr, "%s:900%d", ip_list[i], server_id);
