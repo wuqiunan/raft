@@ -5,6 +5,7 @@
 #include "heap.h"
 #include "log.h"
 #include "tracing.h"
+#include "sys/time.h"
 
 /* Set to 1 to enable tracing. */
 #if 0
@@ -104,6 +105,9 @@ static int electionSend(struct raft *r, const struct raft_server *server)
 
 int electionStart(struct raft *r)
 {
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    printf("election start at %ld\n", time.tv_sec*1000+time.tv_usec/1000);
     raft_term term;
     size_t n_voters;
     size_t voting_index;

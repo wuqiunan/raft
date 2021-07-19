@@ -156,7 +156,8 @@ static void serverTimerCloseCb(struct uv_handle_s *handle)
 static int ServerInit(struct Server *s,
                       struct uv_loop_s *loop,
                       const char *dir,
-                      unsigned id)
+                      unsigned id,
+                      char address)
 {
     struct raft_configuration configuration;
     struct timespec now;
@@ -203,7 +204,7 @@ static int ServerInit(struct Server *s,
     s->id = id;
 
     /* Render the address. */
-    sprintf(s->address, "127.0.0.1:900%d", id);
+    sprintf(s->address, "%s:900%d", address, id);
 
     /* Initialize and start the engine, using the libuv-based I/O backend. */
     rv = raft_init(&s->raft, &s->io, &s->fsm, id, s->address);
@@ -312,7 +313,7 @@ static int ServerStart(struct Server *s)
 {
     int rv;
 
-    Log(s->id, "starting");
+    Log(s->address, " starting");
 
     rv = raft_start(&s->raft);
     if (rv != 0) {
@@ -369,21 +370,94 @@ static void mainSigintCb(struct uv_signal_s *handle, int signum)
     ServerClose(server, mainServerCloseCb);
 }
 
-int main(int argc, char *argv[])
-{
+
+// int main1(int argc, char *argv[])
+// {
+//     struct uv_loop_s loop;
+//     struct uv_signal_s sigint; /* To catch SIGINT and exit. */
+//     struct Server server;
+//     const char *dir;
+//     unsigned id;
+//     int rv;
+
+//     if (argc != 3) {
+//         printf("usage: example-server <dir> <id>\n");
+//         return 1;
+//     }
+//     dir = argv[1];
+//     id = (unsigned)atoi(argv[2]);
+
+//     /* Ignore SIGPIPE, see https://github.com/joyent/libuv/issues/1254 */
+//     signal(SIGPIPE, SIG_IGN);
+
+//     /* Initialize the libuv loop. */
+//     rv = uv_loop_init(&loop);
+//     if (rv != 0) {
+//         Logf(id, "uv_loop_init(): %s", uv_strerror(rv));
+//         goto err;
+//     }
+
+//     /* Initialize the example server. */
+//     rv = ServerInit(&server, &loop, dir, id);
+//     if (rv != 0) {
+//         goto err_after_server_init;
+//     }
+
+//     /* Add a signal handler to stop the example server upon SIGINT. */
+//     rv = uv_signal_init(&loop, &sigint);
+//     if (rv != 0) {
+//         Logf(id, "uv_signal_init(): %s", uv_strerror(rv));
+//         goto err_after_server_init;
+//     }
+//     sigint.data = &server;
+//     rv = uv_signal_start(&sigint, mainSigintCb, SIGINT);
+//     if (rv != 0) {
+//         Logf(id, "uv_signal_start(): %s", uv_strerror(rv));
+//         goto err_after_signal_init;
+//     }
+
+//     /* Start the server. */
+//     rv = ServerStart(&server);
+//     if (rv != 0) {
+//         goto err_after_signal_init;
+//     }
+
+//     /* Run the event loop until we receive SIGINT. */
+//     rv = uv_run(&loop, UV_RUN_DEFAULT);
+//     if (rv != 0) {
+//         Logf(id, "uv_run_start(): %s", uv_strerror(rv));
+//     }
+
+//     uv_loop_close(&loop);
+
+//     return rv;
+
+// err_after_signal_init:
+//     uv_close((struct uv_handle_s *)&sigint, NULL);
+// err_after_server_init:
+//     ServerClose(&server, NULL);
+//     uv_run(&loop, UV_RUN_DEFAULT);
+//     uv_loop_close(&loop);
+// err:
+//     return rv;
+// }
+
+void main(int argc, char *argv[]){
     struct uv_loop_s loop;
     struct uv_signal_s sigint; /* To catch SIGINT and exit. */
     struct Server server;
     const char *dir;
     unsigned id;
+    char address;
     int rv;
 
-    if (argc != 3) {
-        printf("usage: example-server <dir> <id>\n");
+    if (argc != 4) {
+        printf("usage: example-server <dir> <id> <address>\n");
         return 1;
     }
     dir = argv[1];
     id = (unsigned)atoi(argv[2]);
+    address = argv[3];
 
     /* Ignore SIGPIPE, see https://github.com/joyent/libuv/issues/1254 */
     signal(SIGPIPE, SIG_IGN);
@@ -396,7 +470,7 @@ int main(int argc, char *argv[])
     }
 
     /* Initialize the example server. */
-    rv = ServerInit(&server, &loop, dir, id);
+    rv = ServerInit(&server, &loop, dir, id, address);
     if (rv != 0) {
         goto err_after_server_init;
     }

@@ -34,13 +34,13 @@ static int ensureDir(const char *dir)
     }
     return 0;
 }
-static void forkServer(const char *topLevelDir, unsigned i, pid_t *pid)
+static void forkServer(const char *topLevelDir, unsigned i, char address, pid_t *pid)
 {
     *pid = fork();
     if (*pid == 0) {
         char *dir = malloc(strlen(topLevelDir) + strlen("/D") + 1);
         char *id = malloc(N_SERVERS / 10 + 2);
-        char *argv[] = {"./example/server", dir, id, NULL};
+        char *argv[] = {"./example/server", dir, id, address, NULL};
         char *envp[] = {NULL};
         int rv;
         sprintf(dir, "%s/%u", topLevelDir, i + 1);
@@ -53,11 +53,78 @@ static void forkServer(const char *topLevelDir, unsigned i, pid_t *pid)
     }
 }
 
+// int main(int argc, char *argv[])
+// {
+//     const char *topLevelDir = "/tmp/raft";
+//     struct timespec now;
+//     pid_t pids[N_SERVERS];
+//     unsigned i;
+//     int rv;
+
+//     if (argc > 2) {
+//         printf("usage: example-cluster [<dir>]\n");
+//         return 1;
+//     }
+
+//     if (argc == 2) {
+//         topLevelDir = argv[1];
+//     }
+
+//     /* Make sure the top level directory exists. */
+//     rv = ensureDir(topLevelDir);
+//     if (rv != 0) {
+//         return rv;
+//     }
+
+//     /* Spawn the cluster nodes */
+//     for (i = 0; i < N_SERVERS; i++) {
+//         forkServer(topLevelDir, i, &pids[i]);
+//     }
+
+//     /* Seed the random generator */
+//     timespec_get(&now, TIME_UTC);
+//     srandom((unsigned)(now.tv_nsec ^ now.tv_sec));
+
+//     while (1) {
+//         struct timespec interval;
+//         int status;
+
+//         /* Sleep a little bit. */
+//         interval.tv_sec = 1 + random() % 15;
+//         interval.tv_nsec = 0;
+
+//         rv = nanosleep(&interval, NULL);
+//         if (rv != 0) {
+//             printf("error: sleep: %s", strerror(errno));
+//         }
+
+//         /* Kill a random server. */
+//         i = (unsigned)(random() % N_SERVERS);
+
+//         rv = kill(pids[i], SIGINT);
+//         if (rv != 0) {
+//             printf("error: kill server %d: %s", i, strerror(errno));
+//         }
+
+//         waitpid(pids[i], &status, 0);
+
+//         rv = nanosleep(&interval, NULL);
+//         if (rv != 0) {
+//             printf("error: sleep: %s", strerror(errno));
+//         }
+
+//         forkServer(topLevelDir, i, &pids[i]);
+//     }
+
+//     return 0;
+// }
+
 int main(int argc, char *argv[])
 {
+    const char ip_list[3] = {"172.18.1.18",  "172.18.1.250", "172.18.1.175"};
     const char *topLevelDir = "/tmp/raft";
     struct timespec now;
-    pid_t pids[N_SERVERS];
+    pid_t pids[sizeof(ip_list)];
     unsigned i;
     int rv;
 
@@ -77,8 +144,8 @@ int main(int argc, char *argv[])
     }
 
     /* Spawn the cluster nodes */
-    for (i = 0; i < N_SERVERS; i++) {
-        forkServer(topLevelDir, i, &pids[i]);
+    for (i = 0; i < sizeof(ip_list); i++) {
+        forkServer(topLevelDir, i, ip_list[i], &pids[i]);
     }
 
     /* Seed the random generator */
@@ -98,22 +165,8 @@ int main(int argc, char *argv[])
             printf("error: sleep: %s", strerror(errno));
         }
 
-        /* Kill a random server. */
-        i = (unsigned)(random() % N_SERVERS);
+        /* Kill leader server. */
 
-        rv = kill(pids[i], SIGINT);
-        if (rv != 0) {
-            printf("error: kill server %d: %s", i, strerror(errno));
-        }
-
-        waitpid(pids[i], &status, 0);
-
-        rv = nanosleep(&interval, NULL);
-        if (rv != 0) {
-            printf("error: sleep: %s", strerror(errno));
-        }
-
-        forkServer(topLevelDir, i, &pids[i]);
     }
 
     return 0;
