@@ -159,7 +159,7 @@ static int ServerInit(struct Server *s,
                       struct uv_loop_s *loop,
                       const char *dir,
                       unsigned id,
-                      char address)
+                      char *address)
 {
     struct raft_configuration configuration;
     struct timespec now;
@@ -219,10 +219,10 @@ static int ServerInit(struct Server *s,
     /* Bootstrap the initial configuration if needed. */
     raft_configuration_init(&configuration);
     for (i = 0; i < 3; i++) {
-        char address[64];
+        char addr[64];
         unsigned server_id = i + 1;
-        sprintf(address, "%s:900%d", ip_list[i], server_id);
-        rv = raft_configuration_add(&configuration, server_id, address,
+        sprintf(addr, "%s:900%d", ip_list[i], server_id);
+        rv = raft_configuration_add(&configuration, server_id, addr,
                                     RAFT_VOTER);
         if (rv != 0) {
             Logf(s->id, "raft_configuration_add(): %s", raft_strerror(rv));
@@ -450,7 +450,7 @@ void main(int argc, char *argv[]){
     struct Server server;
     const char *dir;
     unsigned id;
-    char address;
+    char *address;
     int rv;
 
     if (argc != 4) {
@@ -460,7 +460,7 @@ void main(int argc, char *argv[]){
     dir = argv[1];
     id = (unsigned)atoi(argv[2]);
     address = argv[3];
-    printf(dir, id, address);
+    printf("dir: %s, id:%d, address: %s", dir, id, address);
 
     /* Ignore SIGPIPE, see https://github.com/joyent/libuv/issues/1254 */
     signal(SIGPIPE, SIG_IGN);
