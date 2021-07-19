@@ -34,13 +34,14 @@ static int ensureDir(const char *dir)
     }
     return 0;
 }
-static void forkServer(const char *topLevelDir, unsigned i, char* address, pid_t *pid)
+static void forkServer(const char *topLevelDir, unsigned i, char *address, pid_t *pid)
 {
     *pid = fork();
     if (*pid == 0) {
         char *dir = malloc(strlen(topLevelDir) + strlen("/D") + 1);
         char *id = malloc(N_SERVERS / 10 + 2);
         char *argv[] = {"./example/server", dir, id, address, NULL};
+        printf(address);
         char *envp[] = {NULL};
         int rv;
         sprintf(dir, "%s/%u", topLevelDir, i + 1);

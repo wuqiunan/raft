@@ -458,7 +458,7 @@ void main(int argc, char *argv[]){
     dir = argv[1];
     id = (unsigned)atoi(argv[2]);
     address = argv[3];
-    printf("argv1: %s, argv2: %d, argv3: %s", dir, id, address);
+    printf(dir, id, address);
 
     /* Ignore SIGPIPE, see https://github.com/joyent/libuv/issues/1254 */
     signal(SIGPIPE, SIG_IGN);
