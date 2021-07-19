@@ -21,6 +21,7 @@
  ********************************************************************/
 
 const char *ip_list[] = {"172.18.1.18",  "172.18.1.250", "172.18.1.175", "172.18.1.238"};
+const int ip_num = 4;
 
 struct Fsm
 {
@@ -219,7 +220,7 @@ static int ServerInit(struct Server *s,
 
     /* Bootstrap the initial configuration if needed. */
     raft_configuration_init(&configuration);
-    for (int i = 0; i < strlen(ip_list); i++){
+    for (int i = 0; i < ip_num; i++){
         char addr[64];
         unsigned server_id = i+1;
         sprintf(addr, "%s:900%d", ip_list[i], server_id);
