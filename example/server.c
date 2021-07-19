@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include "../include/raft.h"
 #include "../include/raft/uv.h"
@@ -315,7 +316,9 @@ static int ServerStart(struct Server *s)
 {
     int rv;
 
-    Log(s->address, " starting");
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    printf("%s starting at %ld/n", s->address, time.tv_sec*1000+time.tv_usec/1000);
 
     rv = raft_start(&s->raft);
     if (rv != 0) {
@@ -338,8 +341,10 @@ err:
 static void ServerClose(struct Server *s, ServerCloseCb cb)
 {
     s->close_cb = cb;
-
-    Log(s->id, "stopping");
+    
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    printf("%s stopping at %d/n", s->address, time.tv_sec*1000+time.tv_usec/1000);
 
     /* Close the timer asynchronously if it was successfully
      * initialized. Otherwise invoke the callback immediately. */
@@ -460,7 +465,7 @@ void main(int argc, char *argv[]){
     dir = argv[1];
     id = (unsigned)atoi(argv[2]);
     address = argv[3];
-    printf("dir: %s, id:%d, address: %s", dir, id, address);
+    printf("dir: %s, id:%d, address: %s/n", dir, id, address);
 
     /* Ignore SIGPIPE, see https://github.com/joyent/libuv/issues/1254 */
     signal(SIGPIPE, SIG_IGN);
