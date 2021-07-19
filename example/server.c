@@ -219,17 +219,16 @@ static int ServerInit(struct Server *s,
 
     /* Bootstrap the initial configuration if needed. */
     raft_configuration_init(&configuration);
-    for (i = 0; i < 3; i++) {
-        char addr[64];
-        unsigned server_id = i + 1;
-        sprintf(addr, "%s:900%d", ip_list[i], server_id);
-        rv = raft_configuration_add(&configuration, server_id, addr,
-                                    RAFT_VOTER);
-        if (rv != 0) {
-            Logf(s->id, "raft_configuration_add(): %s", raft_strerror(rv));
-            goto err_after_configuration_init;
-        }
+    char addr[64];
+    unsigned server_id = 1;
+    sprintf(addr, "%s:900%d", address, server_id);
+    rv = raft_configuration_add(&configuration, server_id, addr,
+                                RAFT_VOTER);
+    if (rv != 0) {
+        Logf(s->id, "raft_configuration_add(): %s", raft_strerror(rv));
+        goto err_after_configuration_init;
     }
+    
     rv = raft_bootstrap(&s->raft, &configuration);
     if (rv != 0 && rv != RAFT_CANTBOOTSTRAP) {
         goto err_after_configuration_init;
@@ -318,7 +317,7 @@ static int ServerStart(struct Server *s)
 
     struct timeval time;
     gettimeofday(&time, NULL);
-    printf("%s starting at %ld/n", s->address, time.tv_sec*1000+time.tv_usec/1000);
+    printf("%s starting at %ld\n", s->address, time.tv_sec*1000+time.tv_usec/1000);
 
     rv = raft_start(&s->raft);
     if (rv != 0) {
@@ -341,10 +340,10 @@ err:
 static void ServerClose(struct Server *s, ServerCloseCb cb)
 {
     s->close_cb = cb;
-    
+
     struct timeval time;
     gettimeofday(&time, NULL);
-    printf("%s stopping at %d/n", s->address, time.tv_sec*1000+time.tv_usec/1000);
+    printf("%s stopping at %d\n", s->address, time.tv_sec*1000+time.tv_usec/1000);
 
     /* Close the timer asynchronously if it was successfully
      * initialized. Otherwise invoke the callback immediately. */
@@ -465,7 +464,7 @@ void main(int argc, char *argv[]){
     dir = argv[1];
     id = (unsigned)atoi(argv[2]);
     address = argv[3];
-    printf("dir: %s, id:%d, address: %s/n", dir, id, address);
+    printf("dir: %s, id:%d, address: %s\n", dir, id, address);
 
     /* Ignore SIGPIPE, see https://github.com/joyent/libuv/issues/1254 */
     signal(SIGPIPE, SIG_IGN);
