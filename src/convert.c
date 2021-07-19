@@ -142,6 +142,9 @@ void convertToFollower(struct raft *r)
 
 int convertToCandidate(struct raft *r, bool disrupt_leader)
 {
+    struct timeval time;
+    gettimeofday(&time, NULL);
+    printf("convertToCandidate at %ld\n", time.tv_sec*1000+time.tv_usec/1000);
     const struct raft_server *server;
     size_t n_voters = configurationVoterCount(&r->configuration);
     int rv;

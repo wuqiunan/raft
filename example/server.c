@@ -343,7 +343,7 @@ static void ServerClose(struct Server *s, ServerCloseCb cb)
 
     struct timeval time;
     gettimeofday(&time, NULL);
-    printf("%s stopping at %d\n", s->address, time.tv_sec*1000+time.tv_usec/1000);
+    printf("%s stopping at %ld\n", s->address, time.tv_sec*1000+time.tv_usec/1000);
 
     /* Close the timer asynchronously if it was successfully
      * initialized. Otherwise invoke the callback immediately. */
