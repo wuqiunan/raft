@@ -34,7 +34,7 @@ static int ensureDir(const char *dir)
     }
     return 0;
 }
-static void forkServer(const char *topLevelDir, unsigned i, char address, pid_t *pid)
+static void forkServer(const char *topLevelDir, unsigned i, char* address, pid_t *pid)
 {
     *pid = fork();
     if (*pid == 0) {
