@@ -52,9 +52,9 @@ int raft_init(struct raft *r,
     r->configuration_index = 0;
     r->configuration_uncommitted_index = 0;
     r->election_timeout = DEFAULT_ELECTION_TIMEOUT;
-    printf("rand  %f\n", 1 + rand() / (double)RAND_MAX);
+    printf("rand  %ld\n", r->heartbeat_timeout);
 
-    r->heartbeat_timeout = (unsigned int)((1 + rand() / (double)RAND_MAX) * r->heartbeat_timeout);//(unsigned)r->io->random(r->io, (int)r->heartbeat_timeout,
+    r->heartbeat_timeout = (int)((1 + rand() / (double)RAND_MAX) * r->heartbeat_timeout);//(unsigned)r->io->random(r->io, (int)r->heartbeat_timeout,
                                                 //2 * (int)r->heartbeat_timeout);//DEFAULT_HEARTBEAT_TIMEOUT;
     printf("heartbeat_timeout %d\n", r->heartbeat_timeout);
     r->install_snapshot_timeout = DEFAULT_INSTALL_SNAPSHOT_TIMEOUT;
