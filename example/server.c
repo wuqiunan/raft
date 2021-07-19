@@ -219,14 +219,16 @@ static int ServerInit(struct Server *s,
 
     /* Bootstrap the initial configuration if needed. */
     raft_configuration_init(&configuration);
-    char addr[64];
-    unsigned server_id = 1;
-    sprintf(addr, "%s:900%d", address, server_id);
-    rv = raft_configuration_add(&configuration, server_id, addr,
-                                RAFT_VOTER);
-    if (rv != 0) {
-        Logf(s->id, "raft_configuration_add(): %s", raft_strerror(rv));
-        goto err_after_configuration_init;
+    for (int i = 0; i < 3; i++){
+        char addr[64];
+        unsigned server_id = i+1;
+        sprintf(addr, "%s:900%d", address, server_id);
+        rv = raft_configuration_add(&configuration, server_id, addr,
+                                    RAFT_VOTER);
+        if (rv != 0) {
+            Logf(s->id, "raft_configuration_add(): %s", raft_strerror(rv));
+            goto err_after_configuration_init;
+        }
     }
     
     rv = raft_bootstrap(&s->raft, &configuration);
