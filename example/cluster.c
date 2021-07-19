@@ -123,7 +123,7 @@ static void forkServer(const char *topLevelDir, unsigned i, char *address, pid_t
 int main(int argc, char *argv[])
 {
     const char *ip_list[] = {"172.18.1.18",  "172.18.1.250", "172.18.1.175"};
-    const char *topLevelDir = "/tmp/raft";
+    const char *topLevelDir = "tmp";
     struct timespec now;
     pid_t pids[sizeof(ip_list)];
     unsigned i;

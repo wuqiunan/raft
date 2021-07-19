@@ -19,6 +19,8 @@
  *
  ********************************************************************/
 
+const char *ip_list[] = {"172.18.1.18",  "172.18.1.250", "172.18.1.175"};
+
 struct Fsm
 {
     unsigned long long count;
@@ -216,10 +218,10 @@ static int ServerInit(struct Server *s,
 
     /* Bootstrap the initial configuration if needed. */
     raft_configuration_init(&configuration);
-    for (i = 0; i < N_SERVERS; i++) {
+    for (i = 0; i < 3; i++) {
         char address[64];
         unsigned server_id = i + 1;
-        sprintf(address, "127.0.0.1:900%d", server_id);
+        sprintf(address, "%s:900%d", ip_list[i], server_id);
         rv = raft_configuration_add(&configuration, server_id, address,
                                     RAFT_VOTER);
         if (rv != 0) {
