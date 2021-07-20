@@ -207,7 +207,7 @@ static int ServerInit(struct Server *s,
     s->id = id;
 
     /* Render the address. */
-    sprintf(s->address, "%s:900%d", address, id);
+    sprintf(s->address, "%s:%d", address, 9092);
 
     /* Initialize and start the engine, using the libuv-based I/O backend. */
     rv = raft_init(&s->raft, &s->io, &s->fsm, id, s->address);
