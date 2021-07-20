@@ -20,7 +20,7 @@
  *
  ********************************************************************/
 
-const char *ip_list[] = {"172.18.1.18",  "172.18.1.250", "10.18.1.185"};//, "172.18.1.238"};
+const char *ip_list[] = {"172.18.1.18:9001",  "172.18.1.250:9002", "10.18.1.185:9092"};//, "172.18.1.238"};
 const int ip_num = 3;
 
 struct Fsm
@@ -207,7 +207,7 @@ static int ServerInit(struct Server *s,
     s->id = id;
 
     /* Render the address. */
-    sprintf(s->address, "%s:%d", address, 9092);
+    sprintf(s->address, "%s", address);
 
     /* Initialize and start the engine, using the libuv-based I/O backend. */
     rv = raft_init(&s->raft, &s->io, &s->fsm, id, s->address);
@@ -222,7 +222,7 @@ static int ServerInit(struct Server *s,
     for (int i = 0; i < ip_num; i++){
         char addr[64];
         unsigned server_id = i+1;
-        sprintf(addr, "%s:%d", ip_list[i], 9092);
+        sprintf(addr, "%s", ip_list[i]);
         rv = raft_configuration_add(&configuration, server_id, addr,
                                     RAFT_VOTER);
         if (rv != 0) {
