@@ -165,7 +165,6 @@ static int ServerInit(struct Server *s,
 {
     struct raft_configuration configuration;
     struct timespec now;
-    unsigned i;
     int rv;
 
     memset(s, 0, sizeof *s);
@@ -462,7 +461,7 @@ void main(int argc, char *argv[]){
 
     if (argc != 4) {
         printf("usage: example-server <dir> <id> <address>\n");
-        return 1;
+        // return 1;
     }
     dir = argv[1];
     id = (unsigned)atoi(argv[2]);
@@ -512,7 +511,7 @@ void main(int argc, char *argv[]){
 
     uv_loop_close(&loop);
 
-    return rv;
+    // return rv;
 
 err_after_signal_init:
     uv_close((struct uv_handle_s *)&sigint, NULL);
@@ -521,5 +520,5 @@ err_after_server_init:
     uv_run(&loop, UV_RUN_DEFAULT);
     uv_loop_close(&loop);
 err:
-    return rv;
+    // return rv;
 }
